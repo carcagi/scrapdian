@@ -1,10 +1,9 @@
 from pyvirtualdisplay import Display
 from selenium import webdriver
-#from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from dotenv import load_dotenv
-import time, re, sys, os
-#import psycopg
+import sys
+import psycopg
 
 display = Display(visible=0, size=(1920, 1080))
 display.start()
@@ -13,6 +12,7 @@ d = webdriver.Chrome()
 d.get('https://muisca.dian.gov.co/WebRutMuisca/DefConsultaEstadoRUT.faces')
 nit = sys.argv[1]
 company_id = sys.argv[2]
+
 
 def get_nitinfo(nitNumber='', company_id=''):
 
@@ -42,7 +42,9 @@ def get_nitinfo(nitNumber='', company_id=''):
     print('Estado: ', company_status)    
 
 def save_nitinfo(company_name, company_status, company_id):
-    with psycopg.connect("dbname=test user=postgres") as conn:
+    load_dotenv()
+    
+    with psycopg2.connect(dbname=os.getenv('DB_NAME'), user=os.getenv('DB_USER'), password=os.getenv('DB_PASSWORD')) as conn:
         cur.execute("""
             INSERT INTO companie_dian_validated (company_id, company_name, company_status)
             VALUES (%s, %s, %s);
